@@ -14,6 +14,7 @@ class ProductVariant(Base):
     product_id: Mapped[int] = mapped_column(ForeignKey('products.id'))
     size: Mapped[str] = mapped_column(nullable=True)
     color: Mapped[str] = mapped_column(nullable=True)
+    sku: Mapped[str] = mapped_column(unique=True)
     price_override: Mapped[Decimal | None] = mapped_column(Numeric(12, 2), nullable=True)
     stock: Mapped[int] = mapped_column(default=0)
 

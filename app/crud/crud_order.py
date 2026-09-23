@@ -5,8 +5,8 @@ from app.schemas.order import OrderRequest, OrderUpdate
 def create_order(db: Session, order: OrderRequest):
     try:
         new_order = Order(
-            shipping_address_id = OrderRequest.shipping_address_id,
-            coupon_id = OrderRequest.coupon_id
+            shipping_address_id = order.shipping_address_id,
+            coupon_id = order.coupon_id
         )
 
         db.add(new_order)
@@ -20,7 +20,7 @@ def create_order(db: Session, order: OrderRequest):
 def get_order(db: Session, id: int):
     return db.query(Order).filter(Order.id == id).first()
 
-def get_users_order(db: Session, user_id: int):
+def get_user_orders(db: Session, user_id: int):
     return db.query(Order).filter(Order.user_id == user_id).all()
 
 def update_order_status(db: Session, order_id: int, status: OrderStatus):

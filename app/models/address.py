@@ -18,5 +18,5 @@ class Address(Base):
     country: Mapped[str] = mapped_column(nullable=False)
     is_default: Mapped[bool] = mapped_column(server_default=text('false'))
 
-    user: Mapped['User'] = relationship(back_populates='addresses')
+    user: Mapped['User'] = relationship(back_populates='address_of_user')
 

@@ -2,10 +2,10 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from datetime import timedelta, datetime, timezone
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from app.schemas.token import TokenData
 from app.core.config import settings
+from uuid import uuid4
 
 
 pwd_context = CryptContext(
@@ -13,8 +13,7 @@ pwd_context = CryptContext(
     deprecated="auto"
 )
 
-ALGORITHM = 'HS256'
-EXPIRY_TIME = settings.EXPIRY_TIME
+
 
 def get_hash_password(password: str):
     return pwd_context.hash(password)
@@ -38,29 +37,79 @@ def create_access_token(data: dict, expiry_time: timedelta | None = None):
     if expiry_time is not None:
         expiry = datetime.now(timezone.utc) + expiry_time
     else:
-        expiry = datetime.now(timezone.utc) + timedelta(minutes=EXPIRY_TIME)
+        expiry = datetime.now(timezone.utc) + timedelta(minutes=settings.EXPIRY_TIME)
 
-    to_encode.update({'exp': expiry})
-    my_token = jwt.encode(to_encode, settings.SECRET_KEY, ALGORITHM)
+    to_encode.update({'jti': str(uuid4()), 'exp': expiry, 'type': 'access'})
+    my_token = jwt.encode(to_encode, settings.SECRET_KEY, settings.ALGORITHM)
     return my_token
 
-my_token = OAuth2PasswordBearer(tokenUrl="/login")
+def create_refresh_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
 
-def get_current_user(db: Session, token: str = Depends(my_token)):
-    from app.crud.crud_user import get_user
+    to_encode.update({'jti': str(uuid4()), 'exp': expire, 'type': 'refresh'})
 
-    try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get('sub')
-        email: str = payload.get('email')
-        role: str = payload.get('role')
+    refresh_token = jwt.encode(to_encode, settings.SECRET_KEY, settings.ALGORITHM)
 
-        if not username:
-            raise
-        user = TokenData(name=username, email=email, role=role)
-    except JWTError:
-        raise
-    user = get_user(db, email=email)
-    if not user:
-        raise
-    return user
+    return refresh_token
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

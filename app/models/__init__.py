@@ -12,18 +12,4 @@ from .review import Review
 from .user import User
 from .wishlist import Wishlist
 
-__all__ = [
-	"Address",
-	"Cart",
-	"CartItem",
-	"Category",
-	"Coupon",
-	"Order",
-	"OrderItem",
-	"Payment",
-	"Product",
-	"ProductVariant",
-	"Review",
-	"User",
-	"Wishlist",
-]
+

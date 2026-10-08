@@ -1,18 +1,13 @@
-from fastapi import Exception, status
-
-
 class AppException(Exception):
     """Base exception for application errors."""
-    def __init__(self, value: str):
-        self.value = value
-    
+    def __init__(self, msg: str):
+        super.__init__(msg)
+        self.msg = msg   
 
 
 class AuthenticationException(AppException):
     """User authentication failed."""
-    def __init__(self, value: str):
-        super().__init__(value)
-
+    pass
 
 class AuthorizationException(AppException):
     """User is authenticated but not allowed to perform an action."""

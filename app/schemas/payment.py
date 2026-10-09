@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 from decimal import Decimal
-from app.models.payment import PaymentStatus, PaymentMethod
+from models.payment import PaymentStatus, PaymentMethod
 
 class PaymentRequest(BaseModel):
     method: PaymentMethod

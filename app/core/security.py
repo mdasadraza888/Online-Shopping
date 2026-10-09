@@ -3,8 +3,8 @@ from passlib.context import CryptContext
 from datetime import timedelta, datetime, timezone
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from app.schemas.token import TokenData
-from app.core.config import settings
+from schemas.token import TokenData
+from .config import settings
 from uuid import uuid4
 
 

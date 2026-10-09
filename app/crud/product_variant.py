@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from app.schemas.product import ProductVariantRequest, ProductVariantUpdate
-from app.models.productvariant import ProductVariant
+from schemas.product import ProductVariantRequest, ProductVariantUpdate
+from models.productvariant import ProductVariant
 
 def create_product_variant(db: Session, product_variant: ProductVariantRequest):
     try:

@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 from decimal import Decimal
-from app.models.order import OrderStatus
+from models.order import OrderStatus
 
 
 class OrderItemRequest(BaseModel):

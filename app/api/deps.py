@@ -1,11 +1,14 @@
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from app.core.config import settings
+from core.config import settings
 from jose import jwt, JWTError
-from app.models.user import User
-from app.core.database import get_db
-from app.core.redis import is_token_revoked
+from models.user import User
+from core.database import get_db
+from core.redis import is_token_revoked
+from crud.crud_user import get_user
+from core import exceptions
+
 
 
 ALGORITHM = settings.ALGORITHM
@@ -14,47 +17,27 @@ EXPIRY_TIME = settings.EXPIRY_TIME
 my_token = OAuth2PasswordBearer(tokenUrl="/Auth/api/v1/endpoints/auth/login")
 
 def get_current_user(db: Session = Depends(get_db), token: str = Depends(my_token)):
-    from app.crud.crud_user import get_user
-
+    
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get('email')
         jti: str = payload.get('jti')
 
         if not jti:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid authentication credentials",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+            raise exceptions.AuthenticationException("Invalid authentication credentials")
 
         if is_token_revoked(jti=jti):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid authentication credentials",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+            raise exceptions.AuthenticationException("Invalid authentication credentials")
         
         if not email:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid authentication credentials",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+            raise exceptions.AuthenticationException("Invalid authentication credentials")
+        
     except JWTError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired authentication token",
-            headers={"WWW-Authenticate": "Bearer"},
-        ) from exc
+        raise exceptions.AuthenticationException("Invalid authentication credentials")
 
     user = get_user(db, email=email)
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User associated with this token was not found",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        raise exceptions.AuthenticationException("Invalid authentication credentials")
     return user
 
 
@@ -75,10 +58,7 @@ roles = ["SUPER_ADMIN",
 def role_checker(allowed_roles: list[str]):
     async def dependency(current_user: User = Depends(get_current_user)):
         if current_user.role not in allowed_roles:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Operation not permitted for your role."
-            )
+            raise exceptions.AuthorizationException("Operation not permitted for your role.")
 
         return current_user
 
@@ -169,12 +149,8 @@ def require_permissions(resource: str, action: str):
         allowed_actions = permission.get(resource, [])
 
         if action not in allowed_actions:
-            raise HTTPException(
-                status_code=403,
-                detail="you don't have permission"
-            )
+            raise exceptions.AuthorizationException("you don't have permit!")
 
         return current_user
 
     return has_permission
-

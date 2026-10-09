@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from sqlalchemy import DateTime, func
-from app.core.database import Base
+from core.database import Base
 from sqlalchemy import ForeignKey
 from typing import TYPE_CHECKING
 

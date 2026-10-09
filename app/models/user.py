@@ -2,7 +2,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from enum import Enum
 from sqlalchemy import DateTime, func, Enum as SQLENUM
-from app.core.database import Base
+from core.database import Base
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:

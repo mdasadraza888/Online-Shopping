@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from enum import Enum
-from sqlalchemy import DateTime, func, Enum as SQLENUM
-from core.database import Base
+from sqlalchemy import DateTime, func, Enum as SQLENUM, String, Boolean, false
+from app.core.database import Base
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -31,6 +31,8 @@ class User(Base):
     role: Mapped[RoleType] = mapped_column(SQLENUM(RoleType), default=RoleType.CUSTOMER, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    OTP: Mapped[str] = mapped_column(nullable=False)
+    is_verified: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false(), nullable=False)
 
     address_of_user: Mapped[list['Address']]= relationship(back_populates="user", cascade="all, delete-orphan")
     orders: Mapped[list['Order']] = relationship('Order')

@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from core.database import Base
+from app.core.database import Base
 from sqlalchemy import Enum as SqlEnum, Numeric, DateTime, text
 from enum import Enum
 from datetime import datetime

@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from core.database import Base
+from app.core.database import Base
 from sqlalchemy import ForeignKey, Numeric, DateTime, func, Text
 from decimal import Decimal
 from datetime import datetime

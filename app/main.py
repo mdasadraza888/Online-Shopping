@@ -1,8 +1,8 @@
 from fastapi import FastAPI
-from api.v1.endpoints.auth import router
-from api.v1.endpoints.user import user_route
-from core import exception_handler
-from core import exceptions
+from app.api.v1.endpoints.auth import router
+from app.api.v1.endpoints.user import user_route
+from app.core import exception_handler
+from app.core import exceptions
 
 
 app = FastAPI(title="E-Commerce Backend", version='1.0.0')
@@ -29,6 +29,6 @@ def root():
 
 
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
+# if __name__ == "__main__":
+#     import uvicorn
+#     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

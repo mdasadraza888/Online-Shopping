@@ -3,16 +3,14 @@ from passlib.context import CryptContext
 from datetime import timedelta, datetime, timezone
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from schemas.token import TokenData
+from app.schemas.token import TokenData
 from .config import settings
 from uuid import uuid4
-
 
 pwd_context = CryptContext(
     schemes=["pbkdf2_sha256", "bcrypt"],
     deprecated="auto"
 )
-
 
 
 def get_hash_password(password: str):
@@ -22,8 +20,7 @@ def verify_hashed_password(normal_password, hashed_password):
     return pwd_context.verify(normal_password, hashed_password)
 
 def authentication_user(db: Session, email: str, password: str):
-    from app.crud.crud_user import get_user
-
+    from crud.crud_user import get_user
     db_user = get_user(db=db, email=email)
     if not db_user:
         return False
@@ -53,63 +50,13 @@ def create_refresh_token(data: dict):
 
     return refresh_token
 
+async def create_otp_token(data: dict):
+    to_encode = data.copy()
+    expire_time = datetime.now(timezone.utc) + timedelta(seconds=settings.OTP_EXPIRATION_TIME)
 
+    to_encode.update({'jti': str(uuid4()), 'exp': expire_time, 'type': 'otp'})
 
+    otp_token = jwt.encode(to_encode, settings.SECRET_KEY, settings.ALGORITHM)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    return otp_token
 

@@ -1,35 +1,31 @@
 from sqlalchemy.orm import Session
-from schemas.user import UserRequest, UserUpdate, UserResponse
-from models.user import RoleType, User
-from core.security import get_hash_password
+from app.schemas.user import UserRequest, UserUpdate, UserResponse
+from app.models.user import RoleType, User
+from app.core.security import get_hash_password
 
 def get_user(db: Session, email: str):
     return db.query(User).filter(User.email == email).first()
 
 def create_user(db: Session, user: UserRequest) -> UserResponse:
     try:
-        db_user = get_user(db=db, email=user.email)
-        if db_user:
-            return {"message": "You already registered."}
-
         password_hash = get_hash_password(user.password)
         new_user = User(
             name=user.name,
             email=user.email,
             password_hash=password_hash,
             phone=user.phone,
-            role=RoleType.CUSTOMER
+            role=RoleType.CUSTOMER,
+            OTP=user.OTP,
+            is_verified=user.is_verified
         )
 
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
         return new_user
-    except ValueError:
+    except Exception:
         db.rollback()
-        return {"status": "unsuccessfull", "message": "Please enter valid information"}
-    except Exception as server_error:
-        return {"status": "unsuccessfull", "message": f"{str(server_error)}"}
+        raise
 
 def update_user(db: Session, email: str, payload: UserUpdate) -> UserResponse:
     try:
@@ -71,4 +67,3 @@ def delete_user(db: Session, email: str) -> dict:
         return {"status": "unsuccessfull", "message": f"{str(server_error)}"}
     finally:
         db.close()
-

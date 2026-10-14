@@ -14,7 +14,6 @@ def revoke_token(jti: str, expires_in: int):
         "true"
     )
 
-
-
 def is_token_revoked(jti: str) -> bool:
     return redis_client.exists(f"revoked:{jti}") == 1
+

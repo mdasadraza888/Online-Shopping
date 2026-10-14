@@ -14,7 +14,7 @@ async def app_exception_handler(request: Request, exc: AppException):
 
 async def user_authentication_handler(request: Request, exc: AuthenticationException):
     return JSONResponse(
-        status_code=status.HTTP_401_UNAUTHORIZED,
+        status_code=401,
         content={
             "status": "Error",
             "message": str(exc)

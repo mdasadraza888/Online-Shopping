@@ -4,7 +4,7 @@ from enum import Enum
 from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING
-from core.database import Base
+from app.core.database import Base
 
 if TYPE_CHECKING:
     from .order_item import OrderItem

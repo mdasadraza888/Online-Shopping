@@ -1,39 +1,43 @@
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from core.config import settings
+from app.core.config import settings
 from jose import jwt, JWTError
-from models.user import User
-from core.database import get_db
-from core.redis import is_token_revoked
-from crud.crud_user import get_user
-from core import exceptions
-
-
+from app.models.user import User
+from app.core.database import get_db
+from app.core.redis import is_token_revoked
+from app.crud.crud_user import get_user
+from app.core import exceptions
 
 ALGORITHM = settings.ALGORITHM
 EXPIRY_TIME = settings.EXPIRY_TIME
 
 my_token = OAuth2PasswordBearer(tokenUrl="/Auth/api/v1/endpoints/auth/login")
 
-def get_current_user(db: Session = Depends(get_db), token: str = Depends(my_token)):
-    
+def decode_token(token: str):
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get('email')
+        return payload
+    except JWTError:
+        raise exceptions.AuthenticationException("Invalid authentication credentials")
+
+def get_current_user(db: Session = Depends(get_db), token = Depends(my_token)):
+    try:
+        payload = decode_token(token=token)
+        email: str = payload.get('sub')
         jti: str = payload.get('jti')
 
         if not jti:
-            raise exceptions.AuthenticationException("Invalid authentication credentials")
+            raise exceptions.AuthenticationException("Invalid jwt id")
 
-        if is_token_revoked(jti=jti):
-            raise exceptions.AuthenticationException("Invalid authentication credentials")
+        # if is_token_revoked(jti=jti):
+        #     raise exceptions.AuthenticationException("Invalid session")
         
         if not email:
-            raise exceptions.AuthenticationException("Invalid authentication credentials")
+            raise exceptions.AuthenticationException("Invalid email credentials")
         
     except JWTError as exc:
-        raise exceptions.AuthenticationException("Invalid authentication credentials")
+        raise exceptions.AuthenticationException("Invalid jwt error credentials")
 
     user = get_user(db, email=email)
     if not user:
@@ -41,12 +45,7 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(my_toke
     return user
 
 
-
-
-
-
-
-roles = ["SUPER_ADMIN", 
+allowed_roles = ["SUPER_ADMIN", 
     "MANAGER"
     "CATALOG_MANAGER"
     "SUPPORT"
@@ -55,7 +54,7 @@ roles = ["SUPER_ADMIN",
     "VENDOR"
 ]
 
-def role_checker(allowed_roles: list[str]):
+def role_checker():
     async def dependency(current_user: User = Depends(get_current_user)):
         if current_user.role not in allowed_roles:
             raise exceptions.AuthorizationException("Operation not permitted for your role.")

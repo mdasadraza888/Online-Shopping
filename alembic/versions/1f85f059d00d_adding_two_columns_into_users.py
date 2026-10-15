@@ -1,7 +1,7 @@
 """adding two columns into users
 
 Revision ID: 1f85f059d00d
-Revises: 9a78b29c06eb
+Revises: 7ae673476df7
 Create Date: 2026-10-12 22:39:38.567127
 
 """
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision: str = '1f85f059d00d'
-down_revision: Union[str, Sequence[str], None] = '9a78b29c06eb'
+down_revision: Union[str, Sequence[str], None] = '7ae673476df7'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

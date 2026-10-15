@@ -14,9 +14,7 @@ def create_user(db: Session, user: UserRequest) -> UserResponse:
             email=user.email,
             password_hash=password_hash,
             phone=user.phone,
-            role=RoleType.CUSTOMER,
-            OTP=user.OTP,
-            is_verified=user.is_verified
+            role=RoleType.CUSTOMER
         )
 
         db.add(new_user)

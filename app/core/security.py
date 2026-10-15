@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.schemas.token import TokenData
 from .config import settings
 from uuid import uuid4
+from app.crud import crud_user
 
 pwd_context = CryptContext(
     schemes=["pbkdf2_sha256", "bcrypt"],
@@ -20,12 +21,11 @@ def verify_hashed_password(normal_password, hashed_password):
     return pwd_context.verify(normal_password, hashed_password)
 
 def authentication_user(db: Session, email: str, password: str):
-    from crud.crud_user import get_user
-    db_user = get_user(db=db, email=email)
+    db_user = crud_user.get_user(db=db, email=email)
     if not db_user:
-        return False
+        return "First Register yourself."
     if not verify_hashed_password(password, db_user.password_hash):
-        return False
+        return "Password is invalid."
 
     return db_user
 
@@ -50,7 +50,7 @@ def create_refresh_token(data: dict):
 
     return refresh_token
 
-async def create_otp_token(data: dict):
+def create_otp_token(data: dict):
     to_encode = data.copy()
     expire_time = datetime.now(timezone.utc) + timedelta(seconds=settings.OTP_EXPIRATION_TIME)
 

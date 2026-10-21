@@ -20,3 +20,4 @@ class UserUpdate(BaseModel):
     email: str | None = None
     phone: str | None = None
 
+

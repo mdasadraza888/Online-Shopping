@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
-from schemas.product import ProductRequest, ProductUpdate
-from models.product import Product
+from app.schemas.product import ProductRequest, ProductUpdate, ProductResponse
+from app.models.product import Product
 
-def create_product(db: Session, product: ProductRequest):
+def create_product(db: Session, product: ProductRequest) -> ProductResponse:
     try:
         new_product = Product(
             name=product.name,
@@ -23,12 +23,12 @@ def create_product(db: Session, product: ProductRequest):
         db.rollback()
         return {"message": f"{str(e)}"}
 
-def get_product(db: Session, product_id: int):
-    return db.query(Product).filter(Product.id == product_id).first()
+def get_product(db: Session, slug: str):
+    return db.query(Product).filter(Product.slug == slug).first()
 
-def update_product(db: Session, product_id: int, payload: ProductUpdate):
+def update_product(db: Session, product_slug: str, payload: ProductUpdate):
     try:
-        db_product = get_product(db=db, product_id=product_id)
+        db_product = get_product(db=db, slug=product_slug)
 
         if not db_product:
             return {"message": "the product does not exist in the database."}
@@ -48,9 +48,9 @@ def update_product(db: Session, product_id: int, payload: ProductUpdate):
         db.rollback()
         return {"message": f"{str(e)}"}
 
-def delete_product(db: Session, product_id: int):
+def delete_product(db: Session, product_slug: str):
     try:
-        db_product = get_product(db=db, product_id=product_id)
+        db_product = get_product(db=db, slug=product_slug)
 
         if not db_product:
             return {"message": "the product does not exist"}

@@ -12,7 +12,7 @@ from app.core import exceptions
 ALGORITHM = settings.ALGORITHM
 EXPIRY_TIME = settings.EXPIRY_TIME
 
-my_token = OAuth2PasswordBearer(tokenUrl="/Auth/api/v1/endpoints/auth/login")
+my_token = OAuth2PasswordBearer(tokenUrl="/Auth/api/v1/endpoints/auth/verify-account")
 
 def decode_token(token: str):
     try:
@@ -24,44 +24,55 @@ def decode_token(token: str):
 def get_current_user(db: Session = Depends(get_db), token = Depends(my_token)):
     try:
         payload = decode_token(token=token)
-        email: str = payload.get('sub')
-        jti: str = payload.get('jti')
 
-        if not jti:
+        if not payload.get('jti'):
             raise exceptions.AuthenticationException("Invalid jwt id")
 
-        # if is_token_revoked(jti=jti):
+        # if is_token_revoked(jti=payload.get('jti')):
         #     raise exceptions.AuthenticationException("Invalid session")
         
-        if not email:
+        if not payload.get('sub'):
             raise exceptions.AuthenticationException("Invalid email credentials")
+
+        # if payload.get('role') not in allowed_roles:
+        #     raise exceptions.AuthenticationException("You are not valid at here.")
         
     except JWTError as exc:
         raise exceptions.AuthenticationException("Invalid jwt error credentials")
 
-    user = get_user(db, email=email)
+    user = get_user(db, email=payload.get('sub'))
     if not user:
         raise exceptions.AuthenticationException("Invalid authentication credentials")
     return user
 
 
 allowed_roles = ["SUPER_ADMIN", 
-    "MANAGER"
-    "CATALOG_MANAGER"
-    "SUPPORT"
-    "WAREHOUSE"
-    "CUSTOMER"
+    "MANAGER",
+    "CATALOG_MANAGER",
+    "SUPPORT",
+    "WAREHOUSE",
+    "CUSTOMER",
     "VENDOR"
 ]
 
-def role_checker():
-    async def dependency(current_user: User = Depends(get_current_user)):
-        if current_user.role not in allowed_roles:
-            raise exceptions.AuthorizationException("Operation not permitted for your role.")
+def role_checker(role: str):
+    if role in allowed_roles:
+        return True
+    
+    return False
 
-        return current_user
+def require_permissions(resource: str, action: str):
+    def has_permission(current_user: User = Depends(get_current_user)):
 
-    return dependency
+        role = current_user.role
+
+        allowed_actions = ROLE_PERMISSIONS.get(role, {}).get(resource, [])
+
+        if action not in allowed_actions:
+            raise exceptions.AuthorizationException("You can't perform this action.")
+
+    return has_permission
+
 
 
 ROLE_PERMISSIONS = {
@@ -140,16 +151,3 @@ ROLE_PERMISSIONS = {
     },
 }
 
-def require_permissions(resource: str, action: str):
-    def has_permission(current_user: User = Depends(get_current_user)):
-
-        permission = ROLE_PERMISSIONS[current_user.role.name]
-
-        allowed_actions = permission.get(resource, [])
-
-        if action not in allowed_actions:
-            raise exceptions.AuthorizationException("you don't have permit!")
-
-        return current_user
-
-    return has_permission

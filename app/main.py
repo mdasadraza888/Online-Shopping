@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.api.v1.endpoints.auth import router
 from app.api.v1.endpoints.user import user_route
+from app.api.v1.endpoints.products import product_rout
 from app.core import exception_handler
 from app.core import exceptions
 
@@ -20,6 +21,7 @@ app.add_exception_handler(exceptions.InsufficientStockException, exception_handl
 
 app.include_router(router=router, prefix="/Auth", tags=['auth'])
 app.include_router(router=user_route, prefix="/profile", tags=["Profile"])
+app.include_router(router=product_rout, prefix="/Products", tags=["Products"])
 
 @app.get("/")
 def root():

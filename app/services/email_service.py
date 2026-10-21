@@ -25,10 +25,8 @@ def generate_otp():
     return f"{otp:06d}"
 
 
-async def send_otp_email(email: str, username: str):
+async def send_otp_email(email: str, username: str, otp: str):
     safe_username = escape(username)
-
-    otp = generate_otp()
 
     msg = f"""
     <html>
@@ -85,49 +83,54 @@ async def send_otp_email(email: str, username: str):
 
 
 async def send_email(email: str, username: str):
-    msg = f"""
-    <html>
-        <body style="font-family: Arial, sans-serif; color: #333;">
-            <h2>Welcome to Online Shopping, {username}! 🛍️</h2>
+    try:
+        msg = f"""
+        <html>
+            <body style="font-family: Arial, sans-serif; color: #333;">
+                <h2>Welcome to Online Shopping, {username}! 🛍️</h2>
 
-            <p>Thank you for registering with <strong>Online Shopping</strong>!
-            We're delighted to have you join our community.</p>
+                <p>Thank you for registering with <strong>Online Shopping</strong>!
+                We're delighted to have you join our community.</p>
 
-            <p>Your account is ready, and you can now explore our latest
-            products, discover your favorite styles, and enjoy a seamless
-            shopping experience.</p>
+                <p>Your account is ready, and you can now explore our latest
+                products, discover your favorite styles, and enjoy a seamless
+                shopping experience.</p>
 
-            <h3>🎁 Your Welcome Gift</h3>
-            <p>Enjoy <strong>10% off your first order!</strong></p>
+                <h3>🎁 Your Welcome Gift</h3>
+                <p>Enjoy <strong>10% off your first order!</strong></p>
 
-            <p>
-                <strong>Promo Code:</strong>
-                <span style="background-color: #f2f2f2; padding: 6px 10px;">
-                    WELCOME10
-                </span>
-            </p>
+                <p>
+                    <strong>Promo Code:</strong>
+                    <span style="background-color: #f2f2f2; padding: 6px 10px;">
+                        WELCOME10
+                    </span>
+                </p>
 
-            <p>Enter the promo code at checkout to redeem your welcome offer,
-            subject to the promotion's terms.</p>
+                <p>Enter the promo code at checkout to redeem your welcome offer,
+                subject to the promotion's terms.</p>
 
-            <p>We're excited to be part of your shopping journey!</p>
+                <p>We're excited to be part of your shopping journey!</p>
 
-            <p>
-                Happy Shopping!<br>
-                <strong>The Online Shopping Team</strong>
-            </p>
-        </body>
-    </html>
-    """
+                <p>
+                    Happy Shopping!<br>
+                    <strong>The Online Shopping Team</strong>
+                </p>
+            </body>
+        </html>
+        """
 
-    message = MessageSchema(
-        subject="Welcome to Online Shopping! 🎉",
-        recipients=[email],
-        body=msg,
-        subtype=MessageType.html,
-    )
+        message = MessageSchema(
+            subject="Welcome to Online Shopping! 🎉",
+            recipients=[email],
+            body=msg,
+            subtype=MessageType.html,
+        )
 
-    fm = FastMail(config=conf)
-    await fm.send_message(message=message)
+        fm = FastMail(config=conf)
+        await fm.send_message(message=message)
+        return True
+    except:
+        raise
+
 
 

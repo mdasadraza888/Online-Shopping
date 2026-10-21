@@ -3,7 +3,6 @@ from pydantic import BaseModel
 class Token(BaseModel):
     access_token: str
     refresh_token: str
-    otp_token: str
     token_type: str
 
 class RefreshTokenResponse(BaseModel):
@@ -17,3 +16,7 @@ class TokenData(BaseModel):
 
 class RefreshTokenRequest(BaseModel):
     refresh_token: str
+
+class OtpVerification(BaseModel):
+    otp_token: str
+    otp: str

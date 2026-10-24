@@ -1,2 +1,4 @@
 # Online-Shopping
-i have made this Online shopping project to just upskill
+E-Commerce Backend Api 
+A RESTfull e-commerce backend built with Python, Fastapi, Restapi, SqlAlchemy and Postgresql(Database) which provides Features such as User, Products, ProductsVariants, ShoppingsCart, Orders, and other core E-commerce features
+
